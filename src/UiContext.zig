@@ -841,7 +841,10 @@ fn setupTreeForRender(self: *UiContext, shader_inputs: *std.ArrayList(ShaderInpu
 
 // small helper for `UiContext.render`
 fn addShaderInputsForNode(self: *UiContext, shader_inputs: *std.ArrayList(ShaderInput), node: *Node) !void {
-    const base_rect = ShaderInput{
+    // note: the `align(32)` is to side step a zig bug (prob this one https://github.com/ziglang/zig/issues/11154)
+    // where llvm emits a `vmovaps` on something that *isn't* 32 byte aligned
+    // which triggers a segfault when initing the vec4's
+    const base_rect align(32) = ShaderInput{
         .bottom_left_pos = node.rect.min,
         .top_right_pos = node.rect.max,
         .bottom_left_uv = vec2{ 0, 0 },
